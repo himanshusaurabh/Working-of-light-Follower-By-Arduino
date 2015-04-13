@@ -1,0 +1,123 @@
+/* Flashlight Following Robot Code 3/25/2014
+
+This code uses three light dependent resistors positioned
+on the right, front and left sides of a robot to control
+motion. When light of sufficient strength falls on one of
+the sensors, the robot turns right, moves forward or turns
+left.
+*/
+
+// Motor control pins
+int E1 = 5; // Enable pin for right motor
+int M1 = 4; // Speed control pin for left motor
+int E2 = 6; // Enable pin for the left motor
+int M2 = 7; // Speed control pin for right motor
+
+// The following motor speeds are determined by experiment
+// so that the robot moves forward in a straight line.
+int leftMotorSpeed = 215;
+int rightMotorSpeed = 185;
+
+int sensorPinRight = 0; // Right sensor pin
+int sensorPinCenter = 1; // Center sensor pin
+int sensorPinLeft = 2; // Left sensor pin
+
+int lightReadingRight;
+int lightToleranceRight = 1000; // Sensor reading needed to trigger right turn
+
+int lightReadingCenter;
+int lightToleranceCenter = 1000; // Sensor reading needed to trigger forward movement
+
+int lightReadingLeft;
+int lightToleranceLeft = 1000; // Sensor reading needed to trigger left turn
+
+int readingDelay = 100; // Delay between readings
+
+void setup()
+{
+pinMode(M1,OUTPUT);
+pinMode(M2,OUTPUT);
+
+// Uncomment the serial feed for calibration purposes
+Serial.begin(9600);
+}
+
+void loop()
+{
+// Uncomment the serial print lines for calibration purposes
+
+// Take reading from right sensor
+lightReadingRight = analogRead(sensorPinRight);
+Serial.print("Right Sensor Reading :");
+Serial.println(lightReadingRight);
+
+// Take reading from center sensor
+lightReadingCenter = analogRead(sensorPinCenter);
+Serial.print("Center Sensor Reading :");
+Serial.println(lightReadingCenter);
+
+// Take reading from left sensor
+lightReadingLeft = analogRead(sensorPinLeft);
+Serial.print("Left Sensor Reading :");
+Serial.println(lightReadingLeft);
+
+
+// Move forward if enought light is detected from center sensor
+if (lightReadingCenter > lightToleranceCenter)
+{
+digitalWrite(M1, HIGH);
+digitalWrite(M2, HIGH);
+analogWrite(E1, leftMotorSpeed);
+analogWrite(E2, rightMotorSpeed);
+delay(readingDelay);
+// Stop
+digitalWrite(M1, LOW);
+digitalWrite(M2, LOW);
+analogWrite(E1, 0);
+analogWrite(E2, 0);
+}
+
+// Turn right if enough light is detected from right sensor
+if (lightReadingRight > lightToleranceRight)
+{
+digitalWrite(M1, LOW);
+digitalWrite(M2, HIGH);
+analogWrite(E1, leftMotorSpeed);
+analogWrite(E2, rightMotorSpeed);
+delay(readingDelay);
+// Stop
+digitalWrite(M1, LOW);
+digitalWrite(M2, LOW);
+analogWrite(E1, 0);
+analogWrite(E2, 0);
+}
+
+// Turn left if enough light is detected from left sensor
+if (lightReadingLeft > lightToleranceLeft)
+{
+digitalWrite(M1, HIGH);
+digitalWrite(M2, LOW);
+analogWrite(E1, leftMotorSpeed);
+analogWrite(E2, rightMotorSpeed);
+delay(readingDelay);
+// Stop
+digitalWrite(M1, LOW);
+digitalWrite(M2, LOW);
+analogWrite(E1, 0);
+analogWrite(E2, 0);
+}
+// delay(5000); // Uncomment this long delay for motor calibration purposes
+}
+
+With this code uploaded to the robot, disconnect the motors and open the serial monitor to take a look at the readings from the light sensors. I did my calibration in normal room light. Each of the uncovered sensors gave readings in the 1000 to 1100 range. I slowly adjusted the trimmers until each sensor read about 1000. A little bit more or a little bit less is alright. When I covered a sensor up from light, the reading dropped to the high 800s to low 900s. In the Arduino code I then set the three tolerance variables; lightToleranceLeft, lightToleranceRight, and lightToleranceCenter to 1000. Thus, when the robot is in darkness, all readings will be below the trigger level of 1000. When a flashlight is shown on a sensor, the sensor reading will go above the trigger level and activate the appropriate motion of the robot.
+
+The specific numbers I used for my particular sensors are not important. What is important is that you send the sensor readings to the serial monitor to get their ambient light readings. Then slowly adjust the trimmers on the sensors until the readings from all three sensors are about the same. Then cover up each sensor and you should get a lower reading. Set your tolerance variables to some reading near the ambient light reading. A flashlight shining on the sensor should then invoke a reading higher than the tolerance, thus activating the robot.
+
+One last thing regarding calibration. At the very bottom of the Arduino code is a commented line with a delay of five seconds. I uncommented this line to make sure the motors were attached correctly. With the robot suspended off the ground, run the code with the robot in the dark. Shine a light on the front sensor and with your hands feel which way the wheels are turning. If one of them is moving backwards instead of forward, switch the position of the wires of that motor on the motor shield. Next shine a light on the right sensor and feel the wheels. The right wheel should go backwards and the left wheel should go forward. If the opposite happens, swap the motor positions. M1+ becomes M2+ and M1- becomes M2- and vice versa. Lastly, comment out the five second delay and upload the code again. The robot should be ready to go.
+FlashlightFollowingRobotCode.ino3 KB
+« PreviousNext »View All Steps
+
+?
+
+We have a be nice comment policy.
+Please be positive and constructive.
